@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport Active Directory | Evgheni</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .report-container { padding-top: 100px; max-width: 950px; margin: 0 auto; padding-bottom: 100px; }
+        .report-card { background: var(--glass); border: 1px solid var(--border); padding: 40px; border-radius: 20px; margin-bottom: 30px; }
+        .report-card h2 { color: var(--accent); margin-top: 0; font-size: 1.6rem; }
+        .back-link { color: var(--text-dim); text-decoration: none; display: flex; align-items: center; gap: 8px; margin-bottom: 25px; transition: 0.3s; font-weight: 600; }
+        .back-link:hover { color: var(--primary); transform: translateX(-5px); }
+        .tech-box { background: rgba(0,0,0,0.6); padding: 25px; border-radius: 12px; border-left: 4px solid var(--accent); font-family: 'Fira Code', monospace; font-size: 0.85rem; margin: 25px 0; line-height: 1.6; color: #d1d5db; }
+        .comment { color: #6a9955; font-style: italic; }
+        .command { color: #4fc1ff; font-weight: bold; }
+        .skills-tag { display: inline-block; background: rgba(99, 102, 241, 0.15); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 15px; }
+        ul li { margin-bottom: 12px; color: var(--text-main); }
+        strong { color: var(--primary); }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.9rem; }
+        th { background: rgba(99, 102, 241, 0.15); color: var(--primary); padding: 10px 14px; text-align: left; }
+        td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-main); font-family: 'Fira Code', monospace; font-size: 0.82rem; }
+    </style>
+</head>
+<body>
+    <div class="gradient-bg"></div>
+
+    <main class="report-container">
+        <a href="index.html" class="back-link"> ← Retour au portfolio</a>
+
+        <header class="report-card">
+            <span class="skills-tag">WINDOWS SERVER & IAM</span>
+            <h1>Administration Système : Active Directory</h1>
+            <p class="response" style="font-size: 1.05rem; line-height: 1.5;">
+                Ce TP simule le déploiement d'un environnement <strong>Active Directory</strong> pour l'entreprise fictive TechNova. L'objectif était de centraliser la gestion des utilisateurs, des ressources et des politiques de sécurité en remplaçant un workgroup non administré par un domaine Windows structuré.
+            </p>
+        </header>
+
+        <section class="report-card">
+            <h2>Infrastructure du Laboratoire</h2>
+            <p>Mise en place de trois machines virtuelles interconnectées sur le réseau <code>192.168.10.0/24</code>.</p>
+            <table>
+                <thead>
+                    <tr><th>Machine</th><th>Nom</th><th>Rôle</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Serveur 1</td><td>SRV-DC01</td><td>Contrôleur de domaine + DNS</td></tr>
+                    <tr><td>Serveur 2</td><td>SRV-FILE01</td><td>Serveur de fichiers partagés</td></tr>
+                    <tr><td>Client</td><td>PC-CLIENT01</td><td>Poste utilisateur Windows 10/11</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="report-card">
+            <h2>Installation du Contrôleur de Domaine</h2>
+            <p>Promotion de <strong>SRV-DC01</strong> en contrôleur de domaine via l'ajout du rôle AD DS et la configuration du domaine <code>technova.local</code>.</p>
+            <div class="tech-box">
+                <span class="comment"># Vérification du service Active Directory après promotion</span><br>
+                <span class="command">Get-Service</span> ADWS, NTDS, DNS<br><br>
+                <span class="comment"># Confirmation du rôle de contrôleur de domaine</span><br>
+                <span class="command">netdom query</span> fsmo
+            </div>
+            <ul>
+                <li><strong>Rôle DNS intégré :</strong> Le contrôleur de domaine héberge le DNS, indispensable à la résolution des noms du domaine <code>technova.local</code>.</li>
+                <li><strong>Promotion via dcpromo :</strong> Configuration du niveau fonctionnel du domaine et définition du mot de passe DSRM.</li>
+            </ul>
+        </section>
+
+        <section class="report-card">
+            <h2>Structure Active Directory & Gestion des Utilisateurs</h2>
+            <p>Création des Unités Organisationnelles (OU) et des comptes utilisateurs selon les services de l'entreprise.</p>
+            <div class="tech-box">
+                <span class="comment"># Création des Unités Organisationnelles</span><br>
+                <span class="command">New-ADOrganizationalUnit</span> -Name "Utilisateurs" -Path "DC=technova,DC=local"<br>
+                <span class="command">New-ADOrganizationalUnit</span> -Name "Ordinateurs" -Path "DC=technova,DC=local"<br><br>
+                <span class="comment"># Création d'un utilisateur du domaine</span><br>
+                <span class="command">New-ADUser</span> -Name "Marie Dupont" -SamAccountName "mdupont" `<br>
+                &nbsp;&nbsp;-UserPrincipalName "mdupont@technova.local" `<br>
+                &nbsp;&nbsp;-AccountPassword (ConvertTo-SecureString "P@ssw0rd123" -AsPlainText -Force) `<br>
+                &nbsp;&nbsp;-ChangePasswordAtLogon $true -Enabled $true
+            </div>
+            <table>
+                <thead>
+                    <tr><th>Nom</th><th>Login</th><th>Service</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Marie Dupont</td><td>mdupont</td><td>Direction</td></tr>
+                    <tr><td>Paul Martin</td><td>pmartin</td><td>RH</td></tr>
+                    <tr><td>Sophie Leroy</td><td>sleroy</td><td>Développement</td></tr>
+                </tbody>
+            </table>
+            <ul>
+                <li><strong>OU Utilisateurs / Ordinateurs / Groupes :</strong> Structure permettant d'appliquer des GPO ciblées par service.</li>
+                <li><strong>Changement de mot de passe obligatoire :</strong> Bonne pratique de sécurité imposée dès la première connexion.</li>
+            </ul>
+        </section>
+
+        <section class="report-card">
+            <h2>Serveur de Fichiers & Partage Réseau</h2>
+            <p>Configuration d'un partage réseau sécurisé sur <strong>SRV-FILE01</strong>, accessible uniquement aux comptes du domaine.</p>
+            <div class="tech-box">
+                <span class="comment"># Création du dossier et configuration du partage</span><br>
+                <span class="command">New-SmbShare</span> -Name "Partage" -Path "C:\Partage" `<br>
+                &nbsp;&nbsp;-FullAccess "TECHNOVA\Administrateurs" `<br>
+                &nbsp;&nbsp;-ReadAccess "TECHNOVA\Utilisateurs du domaine"<br><br>
+                <span class="comment"># Vérification de l'accès depuis le client</span><br>
+                <span class="command">net use</span> Z: \\SRV-FILE01\Partage
+            </div>
+            <ul>
+                <li><strong>Permissions NTFS vs Partage :</strong> Distinction entre les droits au niveau du partage réseau et ceux appliqués au système de fichiers.</li>
+                <li><strong>Accès par groupe :</strong> Utilisation du groupe <em>Utilisateurs du domaine</em> pour éviter la gestion individuelle des permissions.</li>
+            </ul>
+        </section>
+
+        <section class="report-card">
+            <h2>Stratégie de Groupe (GPO)</h2>
+            <p>Déploiement d'une GPO appliquée à l'ensemble des postes du domaine pour uniformiser la sécurité.</p>
+            <div class="tech-box">
+                <span class="comment"># Vérification de l'application des GPO sur le client</span><br>
+                <span class="command">gpresult</span> /r<br><br>
+                <span class="comment"># Forcer le rafraîchissement des stratégies de groupe</span><br>
+                <span class="command">gpupdate</span> /force
+            </div>
+            <ul>
+                <li><strong>Verrouillage de session :</strong> Activation automatique après 10 minutes d'inactivité.</li>
+                <li><strong>Politique de mot de passe :</strong> Longueur minimale de 8 caractères imposée via la GPO Default Domain Policy.</li>
+                <li><strong>Fond d'écran entreprise :</strong> Déploiement centralisé via un chemin UNC pointant vers SRV-FILE01.</li>
+            </ul>
+        </section>
+
+        <section class="report-card">
+            <h2>Synthèse Technique</h2>
+            <ul>
+                <li><strong>Centralisation :</strong> Un seul point d'administration pour l'ensemble des comptes, postes et politiques de l'entreprise.</li>
+                <li><strong>Scalabilité :</strong> L'architecture par OU permet d'étendre facilement le domaine (nouveaux services, filiales).</li>
+                <li><strong>Sécurité :</strong> Les GPO garantissent l'application cohérente des règles sur tous les postes, sans intervention manuelle.</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 — Evgheni — Administration Windows Server</p>
+    </footer>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

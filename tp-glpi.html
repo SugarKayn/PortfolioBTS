@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport GLPI | Evgheni</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .report-container { padding-top: 100px; max-width: 950px; margin: 0 auto; padding-bottom: 100px; }
+        .report-card { background: var(--glass); border: 1px solid var(--border); padding: 40px; border-radius: 20px; margin-bottom: 30px; }
+        .report-card h2 { color: var(--accent); margin-top: 0; font-size: 1.6rem; }
+        .back-link { color: var(--text-dim); text-decoration: none; display: flex; align-items: center; gap: 8px; margin-bottom: 25px; transition: 0.3s; font-weight: 600; }
+        .back-link:hover { color: var(--primary); transform: translateX(-5px); }
+        .tech-box { background: rgba(0,0,0,0.6); padding: 25px; border-radius: 12px; border-left: 4px solid var(--accent); font-family: 'Fira Code', monospace; font-size: 0.85rem; margin: 25px 0; line-height: 1.6; color: #d1d5db; }
+        .comment { color: #6a9955; font-style: italic; }
+        .command { color: #4fc1ff; font-weight: bold; }
+        .skills-tag { display: inline-block; background: rgba(99, 102, 241, 0.15); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 15px; }
+        ul li { margin-bottom: 12px; color: var(--text-main); }
+        strong { color: var(--primary); }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.9rem; }
+        th { background: rgba(99, 102, 241, 0.15); color: var(--primary); padding: 10px 14px; text-align: left; }
+        td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-main); font-family: 'Fira Code', monospace; font-size: 0.82rem; }
+    </style>
+</head>
+<body>
+    <div class="gradient-bg"></div>
+
+    <main class="report-container">
+        <a href="index.html" class="back-link"> ← Retour au portfolio</a>
+
+        <header class="report-card">
+            <span class="skills-tag">ITSM & GESTION DE PARC</span>
+            <h1>Administration Système : Déploiement GLPI</h1>
+            <p class="response" style="font-size: 1.05rem; line-height: 1.5;">
+                Ce TP couvre l'installation et la configuration de <strong>GLPI</strong>, une solution open-source de gestion de parc informatique et de helpdesk. L'objectif était de déployer un environnement fonctionnel permettant l'inventaire automatique des machines, la gestion des utilisateurs et le traitement des tickets d'incidents.
+            </p>
+        </header>
+
+        <section class="report-card">
+            <h2>Architecture du Laboratoire</h2>
+            <p>Déploiement sur trois machines virtuelles sous VirtualBox, simulant un réseau d'entreprise.</p>
+            <table>
+                <thead>
+                    <tr><th>Machine</th><th>Système</th><th>Rôle</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>VM1 — Serveur GLPI</td><td>Ubuntu Server</td><td>Apache + MariaDB + GLPI</td></tr>
+                    <tr><td>VM2 — Poste client</td><td>Windows 10/11</td><td>Accès interface web GLPI</td></tr>
+                    <tr><td>VM3 — Poste inventorié</td><td>Windows / Linux</td><td>Agent GLPI (inventaire auto)</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="report-card">
+            <h2>Installation de la Stack LAMP</h2>
+            <p>Mise en place du serveur web, de la base de données et de PHP sur Ubuntu Server, base indispensable au fonctionnement de GLPI.</p>
+            <div class="tech-box">
+                <span class="comment"># Mise à jour du système</span><br>
+                <span class="command">sudo apt update</span> && <span class="command">sudo apt upgrade</span> -y<br><br>
+                <span class="comment"># Installation d'Apache, MariaDB et des extensions PHP requises</span><br>
+                <span class="command">sudo apt install</span> apache2 mariadb-server php php-mysql php-curl \<br>
+                &nbsp;&nbsp;php-gd php-intl php-xml php-mbstring php-zip php-bz2 php-imap -y<br><br>
+                <span class="comment"># Vérification du service Apache</span><br>
+                <span class="command">systemctl status</span> apache2
+            </div>
+            <ul>
+                <li><strong>Apache2 :</strong> Serveur web qui expose l'interface GLPI aux navigateurs clients.</li>
+                <li><strong>MariaDB :</strong> Base de données relationnelle qui stocke l'inventaire, les tickets et les utilisateurs.</li>
+                <li><strong>Extensions PHP :</strong> Chaque module est requis pour une fonctionnalité spécifique de GLPI (compression, internationalisation, mailing...).</li>
+            </ul>
+        </section>
+
+        <section class="report-card">
+            <h2>Configuration de la Base de Données</h2>
+            <p>Création d'une base dédiée et d'un utilisateur applicatif avec les droits limités au strict nécessaire.</p>
+            <div class="tech-box">
+                <span class="comment"># Connexion à MariaDB en root</span><br>
+                <span class="command">sudo mysql</span><br><br>
+                <span class="comment"># Création de la base et de l'utilisateur applicatif</span><br>
+                CREATE DATABASE glpi;<br>
+                CREATE USER 'glpiuser'@'localhost' IDENTIFIED BY 'password';<br>
+                GRANT ALL PRIVILEGES ON glpi.* TO 'glpiuser'@'localhost';<br>
+                FLUSH PRIVILEGES;<br>
+                EXIT;
+            </div>
+            <ul>
+                <li><strong>Principe du moindre privilège :</strong> L'utilisateur <code>glpiuser</code> n'a accès qu'à la base <code>glpi</code>, limitant l'impact en cas de compromission.</li>
+                <li><strong>FLUSH PRIVILEGES :</strong> Force le rechargement des tables de droits sans redémarrage du service.</li>
+            </ul>
+        </section>
+
+        <section class="report-card">
+            <h2>Installation & Déploiement de GLPI</h2>
+            <p>Téléchargement, extraction et configuration des permissions pour exposer GLPI via Apache.</p>
+            <div class="tech-box">
+                <span class="comment"># Téléchargement de la dernière version de GLPI</span><br>
+                <span class="command">wget</span> https://github.com/glpi-project/glpi/releases/latest/download/glpi.tgz<br><br>
+                <span class="comment"># Extraction et déplacement dans le répertoire web</span><br>
+                <span class="command">tar -xvzf</span> glpi.tgz<br>
+                <span class="command">sudo mv</span> glpi /var/www/html/<br><br>
+                <span class="comment"># Attribution des droits au processus Apache (www-data)</span><br>
+                <span class="command">sudo chown -R</span> www-data:www-data /var/www/html/glpi
+            </div>
+            <ul>
+                <li><strong>Droits www-data :</strong> Apache doit être propriétaire des fichiers GLPI pour pouvoir écrire les logs, le cache et les fichiers uploadés.</li>
+                <li><strong>Accès à l'interface :</strong> Configuration finalisée via l'assistant web sur <code>http://IP_SERVEUR/glpi</code>.</li>
+            </ul>
+        </section>
+
+        <section class="report-card">
+            <h2>Gestion du Parc & Tickets d'Incidents</h2>
+            <p>Après installation de l'agent GLPI sur VM3, vérification de l'inventaire automatique et test du workflow de helpdesk.</p>
+            <table>
+                <thead>
+                    <tr><th>Compte</th><th>Login / MDP</th><th>Rôle</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Administrateur</td><td>glpi / glpi</td><td>Accès complet</td></tr>
+                    <tr><td>Technicien</td><td>tech / tech</td><td>Gestion des tickets</td></tr>
+                    <tr><td>Utilisateur</td><td>normal / normal</td><td>Consultation</td></tr>
+                    <tr><td>Portail</td><td>post-only / postonly</td><td>Création de tickets uniquement</td></tr>
+                </tbody>
+            </table>
+            <ul>
+                <li><strong>Inventaire automatique :</strong> L'agent GLPI sur VM3 remonte le matériel, l'OS et les logiciels installés sans intervention manuelle.</li>
+                <li><strong>Cycle de vie d'un ticket :</strong> Création → Assignation à un technicien → Résolution → Clôture.</li>
+                <li><strong>Séparation des rôles :</strong> Isolation des privilèges entre administrateurs, techniciens et utilisateurs finaux.</li>
+            </ul>
+        </section>
+
+        <section class="report-card">
+            <h2>Synthèse Technique</h2>
+            <ul>
+                <li><strong>Architecture client/serveur :</strong> Maîtrise du déploiement d'une application web multi-tiers (Frontend, Backend, BDD).</li>
+                <li><strong>ITSM :</strong> Compréhension du processus de gestion des incidents et des actifs informatiques.</li>
+                <li><strong>Automatisation de l'inventaire :</strong> L'agent GLPI réduit la charge de travail de l'équipe IT en remontant les informations en temps réel.</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 — Evgheni — Gestion de Parc & ITSM</p>
+    </footer>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

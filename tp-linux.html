@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport TP Linux | Evgheni</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .report-container { padding-top: 100px; max-width: 900px; margin: 0 auto; }
+        .report-card { background: var(--glass); border: 1px solid var(--border); padding: 40px; border-radius: 20px; margin-bottom: 30px; }
+        .report-card h2 { color: var(--accent); margin-top: 0; display: flex; align-items: center; gap: 10px; }
+        .back-link { color: var(--text-dim); text-decoration: none; display: flex; align-items: center; gap: 5px; margin-bottom: 20px; transition: 0.3s; }
+        .back-link:hover { color: var(--primary); }
+        .tech-box { background: rgba(0,0,0,0.5); padding: 20px; border-radius: 10px; border-left: 4px solid var(--accent); font-family: 'Fira Code', monospace; font-size: 0.85rem; margin: 20px 0; line-height: 1.5; overflow-x: auto; }
+        .comment { color: #6a9955; }
+        .command { color: #4fc1ff; }
+        ul li { margin-bottom: 10px; color: var(--text-main); }
+        strong { color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="gradient-bg"></div>
+
+    <main class="report-container">
+        <a href="index.html" class="back-link"><i data-lucide="arrow-left"></i> Retour au portfolio</a>
+
+        <header class="report-card">
+            <h1>Rapport Technique : Administration Linux</h1>
+            <p class="response">Ce document détaille la mise en œuvre d'une gestion rigoureuse du système de fichiers et des politiques de sécurité locales. Ces compétences sont fondamentales pour garantir l'intégrité et la disponibilité des données en environnement de production et Cloud.</p>
+        </header>
+
+        <section class="report-card">
+            <h2> Création et Navigation</h2>
+            <p>Mise en place d'une structure organisée pour la gestion des documents et des journaux système.</p>
+            <div class="tech-box">
+                <span class="comment"># Création de l'arborescence complexe</span><br>
+                <span class="command">mkdir -p</span> documents/{textes,images,archives} logs tmp<br><br>
+                <span class="comment"># Ajout de contenu sans écraser le fichier existant</span><br>
+                <span class="command">echo</span> 'Quatrième ligne' <span class="command">>></span> documents/textes/fichier1.txt<br><br>
+                <span class="comment"># Vérification visuelle de la structure</span><br>
+                <span class="command">tree -a</span>
+            </div>
+            <ul>
+                <li>Utilisation de l'option <code>-p</code> pour créer les répertoires parents.</li>
+                <li>Maîtrise de la redirection <code>>></code> pour la journalisation.</li>
+            </ul>
+        </section>
+
+        <section class="report-card">
+            <h2>Permissions et Sécurité</h2>
+            <p>Application du modèle de droits Linux pour sécuriser les données sensibles.</p>
+            <div class="tech-box">
+                <span class="comment"># Application du Sticky Bit (seul le propriétaire peut supprimer)</span><br>
+                <span class="command">chmod 1777</span> tmp/<br><br>
+                <span class="comment"># Attribution de droits stricts (Lecture/Ecriture proprio, Lecture groupe)</span><br>
+                <span class="command">chmod 640</span> documents/textes/fichier1.txt<br><br>
+                <span class="comment"># Recherche de fichiers avec des droits spécifiques (Setuid)</span><br>
+                <span class="command">find</span> / -perm -4000 -type f <span class="command">2>/dev/null</span>
+            </div>
+            <ul>
+                <li><strong>Sticky Bit :</strong> Indispensable pour les répertoires partagés (ex: <code>/tmp</code>).</li>
+                <li><strong>Modes Octaux :</strong> Compréhension des valeurs numériques pour une gestion rapide des droits.</li>
+                <li><strong> find :</strong> Capacité à auditer le système pour trouver des binaires à risques.</li>
+            </ul>
+        </section>
+
+        <section class="report-card">
+            <h2>Filtrage et Recherche</h2>
+            <p>Extraction d'informations pertinentes à partir de fichiers de données.</p>
+            <div class="tech-box">
+                <span class="comment"># Affichage des 3 premières lignes triées par score (colonne 2)</span><br>
+                <span class="command">sort -k2 -nr</span> notes.txt | <span class="command">head -n 3</span><br><br>
+                <span class="comment"># Recherche de fichiers modifiés il y a moins de 24h</span><br>
+                <span class="command">find</span> . -mtime -1 -type f
+            </div>
+            <ul>
+                <li>Utilisation des <strong>Pipes (|)</strong> pour enchaîner les traitements.</li>
+                <li>Maîtrise de <code>sort</code> et <code>grep</code> pour l'analyse de logs.</li>
+            </ul>
+        </section>
+
+        <section class="report-card">
+            <h2>Archivage et Automatisation</h2>
+            <p>Sauvegarde des données critiques pour garantir la continuité de service.</p>
+            <div class="tech-box">
+                <span class="comment"># Création d'une archive compressée .tar.gz</span><br>
+                <span class="command">tar -cvzf</span> archives/sauvegarde.tar.gz documents/textes/<br><br>
+                <span class="comment"># Automatisation via Crontab (tous les jours à 2h du matin)</span><br>
+                00 02 * * * /home/user/scripts/backup.sh
+            </div>
+            <ul>
+                <li>Compression <strong>Gzip</strong> pour optimiser l'espace disque.</li>
+                <li>Planification de tâches avec <strong>Cron</strong> pour l'exploitation.</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 — Evgheni — Portfolio SISR</p>
+    </footer>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

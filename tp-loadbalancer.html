@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport Load Balancing | Evgheni</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .report-container { padding-top: 100px; max-width: 950px; margin: 0 auto; padding-bottom: 100px; }
+        .report-card { background: var(--glass); border: 1px solid var(--border); padding: 40px; border-radius: 20px; margin-bottom: 30px; }
+        .report-card h2 { color: var(--accent); margin-top: 0; font-size: 1.6rem; }
+        .back-link { color: var(--text-dim); text-decoration: none; display: flex; align-items: center; gap: 8px; margin-bottom: 25px; transition: 0.3s; font-weight: 600; }
+        .back-link:hover { color: var(--primary); transform: translateX(-5px); }
+        .tech-box { background: rgba(0,0,0,0.6); padding: 25px; border-radius: 12px; border-left: 4px solid var(--accent); font-family: 'Fira Code', monospace; font-size: 0.85rem; margin: 25px 0; line-height: 1.6; color: #d1d5db; }
+        .comment { color: #6a9955; font-style: italic; }
+        .command { color: #4fc1ff; font-weight: bold; }
+        .skills-tag { display: inline-block; background: rgba(99, 102, 241, 0.15); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 15px; }
+        ul li { margin-bottom: 12px; color: var(--text-main); }
+        strong { color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="gradient-bg"></div>
+
+    <main class="report-container">
+        <a href="index.html" class="back-link"> ← Retour au portfolio</a>
+
+        <header class="report-card">
+            <span class="skills-tag">HAUTE DISPONIBILITÉ & SCALABILITÉ</span>
+            <h1>Administration Système : Répartition de Charge</h1>
+            <p class="response" style="font-size: 1.05rem; line-height: 1.5;">
+                Ce projet simule une architecture de production moderne. L'objectif était de déployer un <strong>Load Balancer</strong> pour répartir le trafic entre deux serveurs web redondants, garantissant ainsi la continuité de service en cas de panne de l'un des nœuds.
+            </p>
+        </header>
+
+        <section class="report-card">
+            <h2>Architecture du Cluster</h2>
+            <p>Mise en place d'un environnement composé de trois serveurs Ubuntu interconnectés.</p>
+            <ul>
+                <li><strong>Serveurs Web (Nœuds) :</strong> Deux instances Apache (web1 et web2) hébergeant le contenu applicatif.</li>
+                <li><strong>Équilibreur (Frontal) :</strong> Une instance HAProxy (lb) chargée d'aiguiller les requêtes entrantes.</li>
+            </ul>
+            <div class="tech-box">
+                <span class="comment"># Vérification de l'interconnectivité entre les nœuds</span><br>
+                <span class="command">ping</span> 192.168.1.10 <span class="comment"># Vers Web1</span><br>
+                <span class="command">ping</span> 192.168.1.11 <span class="comment"># Vers Web2</span>
+            </div>
+        </section>
+
+        <section class="report-card">
+            <h2>Gouvernance des accès et Permissions</h2>
+            <p>Gestion unifiée des comptes et sécurisation des répertoires de déploiement sur l'ensemble du cluster.</p>
+            <div class="tech-box">
+                <span class="comment"># Création des comptes techniques et affectation aux groupes</span><br>
+                <span class="command">sudo adduser</span> adminweb && <span class="command">sudo usermod -aG</span> admins adminweb<br><br>
+                <span class="comment"># Sécurisation du dossier de service avec Sticky Bit de groupe</span><br>
+                <span class="command">sudo chmod 2775</span> /srv/web
+            </div>
+            <ul>
+                <li><strong>Audit :</strong> Identification des lieux de stockage des identifiants (<code>/etc/passwd</code>) et des répertoires personnels (<code>/home</code>).</li>
+                <li><strong>Collaboration :</strong> Utilisation des groupes pour permettre aux développeurs de travailler sur la même arborescence sans compromettre les droits <code>root</code>.</li>
+            </ul>
+        </section>
+
+        <section class="report-card">
+            <h2>Configuration de la Répartition (HAProxy)</h2>
+            <p>Implémentation de l'algorithme <strong>Round Robin</strong> pour équilibrer la charge de manière équitable.</p>
+            <div class="tech-box">
+                <span class="comment"># Extrait de la configuration /etc/haproxy/haproxy.cfg</span><br>
+                backend web_servers<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;balance roundrobin<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;server web1 192.168.1.10:80 check<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;server web2 192.168.1.11:80 check
+            </div>
+            <ul>
+                <li><strong>Health Checks :</strong> Configuration de tests de santé (<code>check</code>) pour détecter automatiquement la chute d'un serveur web.</li>
+                <li><strong>Tests de charge :</strong> Simulation de requêtes multiples via <code>curl</code> pour observer la bascule dynamique entre les serveurs.</li>
+            </ul>
+        </section>
+
+        <section class="report-card">
+            <h2>Sécurisation via Pare-feu (UFW)</h2>
+            <p>Filtrage des flux entrants pour n'autoriser que le trafic nécessaire (SSH et HTTP).</p>
+            <div class="tech-box">
+                <span class="command">sudo ufw allow</span> 80/tcp <span class="comment"># Autoriser le HTTP</span><br>
+                <span class="command">sudo ufw enable</span><br>
+                <span class="command">sudo ufw status</span>
+            </div>
+        </section>
+
+        <section class="report-card">
+            <h2>Synthèse Technique</h2>
+            <ul>
+                <li><strong>HAProxy vs Apache :</strong> Compréhension de la différence entre un proxy de répartition et un serveur de contenu.</li>
+                <li><strong>Résilience :</strong> Capacité de l'infrastructure à rester opérationnelle même si l'un des serveurs Web tombe.</li>
+                <li><strong>Scalabilité :</strong> Possibilité d'ajouter facilement de nouveaux nœuds au backend pour supporter plus de trafic.</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 — Evgheni — Architectures Distribuées</p>
+    </footer>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

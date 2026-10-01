@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport DNS & Web | Evgheni</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .report-container { padding-top: 100px; max-width: 950px; margin: 0 auto; padding-bottom: 100px; }
+        .report-card { background: var(--glass); border: 1px solid var(--border); padding: 40px; border-radius: 20px; margin-bottom: 30px; }
+        .report-card h2 { color: var(--accent); margin-top: 0; font-size: 1.6rem; }
+        .back-link { color: var(--text-dim); text-decoration: none; display: flex; align-items: center; gap: 8px; margin-bottom: 25px; transition: 0.3s; font-weight: 600; }
+        .back-link:hover { color: var(--primary); transform: translateX(-5px); }
+        .tech-box { background: rgba(0,0,0,0.6); padding: 25px; border-radius: 12px; border-left: 4px solid var(--accent); font-family: 'Fira Code', monospace; font-size: 0.85rem; margin: 25px 0; line-height: 1.6; color: #d1d5db; }
+        .comment { color: #6a9955; font-style: italic; }
+        .command { color: #4fc1ff; font-weight: bold; }
+        .skills-tag { display: inline-block; background: rgba(99, 102, 241, 0.15); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 15px; }
+        ul li { margin-bottom: 12px; color: var(--text-main); }
+        strong { color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="gradient-bg"></div>
+
+    <main class="report-container">
+        <a href="index.html" class="back-link"> ← Retour au portfolio</a>
+
+        <header class="report-card">
+            <span class="skills-tag">RÉSEAU & SERVICES WEB</span>
+            <h1>Infrastructure Web : DNS Bind9 et Apache2</h1>
+            <p class="response" style="font-size: 1.05rem; line-height: 1.5;">
+                Ce TP porte sur l'installation et l'interconnexion de deux services piliers de l'internet. L'objectif était de déployer une résolution de noms de domaine interne via <strong>Bind9</strong> pour piloter l'accès à un serveur d'hébergement <strong>Apache2</strong> au sein d'un domaine local.
+            </p>
+        </header>
+
+        <section class="report-card">
+            <h2>Configuration du Serveur DNS (Bind9)</h2>
+            <p>Mise en place de l'autorité de nommage pour le domaine <code>entreprise.local</code>.</p>
+            <div class="tech-box">
+                <span class="comment"># Déclaration de la zone DNS directe</span><br>
+                zone "entreprise.local" { type master; file "/var/cache/bind/db.entreprise.local"; };<br><br>
+                <span class="comment"># Enregistrements de la zone (SOA, NS et records A)</span><br>
+                dns IN A 192.168.10.10<br>
+                www IN A 192.168.10.20 <span class="comment"># IP du serveur Web</span>
+            </div>
+            <ul>
+                <li><strong>Déploiement :</strong> Installation du paquet <code>bind9</code> et des outils <code>dnsutils</code>.</li>
+                <li><strong>Vérification de zone :</strong> Utilisation de <code>named-checkconf</code> et <code>named-checkzone</code> pour valider la configuration.</li>
+                <li><strong>Validation :</strong> Test de résolution via <code>nslookup www.entreprise.local</code>.</li>
+            </ul>
+        </section>
+
+        
+
+        <section class="report-card">
+            <h2>Serveur Web Apache2</h2>
+            <p>Déploiement et personnalisation d'un service d'hébergement pour répondre aux requêtes HTTP.</p>
+            <div class="tech-box">
+                <span class="comment"># Installation du serveur Web</span><br>
+                <span class="command">sudo apt install</span> apache2 -y<br><br>
+                <span class="comment"># Création de la page d'accueil</span><br>
+                /var/www/html/index.html<br>
+                /var/www/html/style.css
+            </div>
+            <ul>
+                <li><strong>Gestion du service :</strong> Pilotage via <code>systemctl</code> (start, stop, status).</li>
+                <li><strong>Intégration Web :</strong> Développement d'une page HTML simple structurée et stylisée en CSS.</li>
+                <li><strong>Test final :</strong> Accès au site via l'URL DNS <code>http://www.entreprise.local</code>.</li>
+            </ul>
+        </section>
+
+        
+
+        <section class="report-card">
+            <h2>Compétences Validées</h2>
+            <ul>
+                <li><strong>Infrastructure :</strong> Capacité à installer et configurer des services serveurs sous Linux.</li>
+                <li><strong>Réseau :</strong> Compréhension du rôle du DNS dans la résolution de noms IP.</li>
+                <li><strong>Web :</strong> Maîtrise de l'arborescence Apache (<code>/var/www/html</code>) et des bases du développement frontend.</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 — Evgheni — Administration Infrastructure</p>
+    </footer>
+</body>
+</html>

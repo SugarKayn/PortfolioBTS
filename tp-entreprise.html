@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport Entreprise Linux | Evgheni</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .report-container { padding-top: 100px; max-width: 950px; margin: 0 auto; padding-bottom: 100px; }
+        .report-card { background: var(--glass); border: 1px solid var(--border); padding: 40px; border-radius: 20px; margin-bottom: 30px; }
+        .report-card h2 { color: var(--accent); margin-top: 0; font-size: 1.6rem; }
+        .back-link { color: var(--text-dim); text-decoration: none; display: flex; align-items: center; gap: 8px; margin-bottom: 25px; transition: 0.3s; font-weight: 600; }
+        .back-link:hover { color: var(--primary); transform: translateX(-5px); }
+        .tech-box { background: rgba(0,0,0,0.6); padding: 25px; border-radius: 12px; border-left: 4px solid var(--accent); font-family: 'Fira Code', monospace; font-size: 0.85rem; margin: 25px 0; line-height: 1.6; color: #d1d5db; }
+        .comment { color: #6a9955; font-style: italic; }
+        .command { color: #4fc1ff; font-weight: bold; }
+        .skills-tag { display: inline-block; background: rgba(34, 197, 94, 0.15); color: #22c55e; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 15px; }
+        ul li { margin-bottom: 12px; color: var(--text-main); }
+        strong { color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="gradient-bg"></div>
+
+    <main class="report-container">
+        <a href="index.html" class="back-link"> ← Retour au portfolio</a>
+
+        <header class="report-card">
+            <span class="skills-tag">SCÉNARIO D'ENTREPRISE</span>
+            <h1>Gestion d'Infrastructure : TechSolutions</h1>
+            <p class="response" style="font-size: 1.05rem; line-height: 1.5;">
+                Dans ce scénario d'entreprise, j'ai agi en tant qu'administrateur système junior pour configurer un environnement serveur sécurisé. L'objectif était de garantir la <strong>confidentialité des données</strong> et la <strong>séparation des droits</strong> entre les équipes Développement, Marketing, Support et Direction.
+            </p>
+        </header>
+
+        <section class="report-card">
+            <h2>Organisation des Équipes</h2>
+            <p>Création d'une structure d'utilisateurs et de groupes basée sur l'organigramme de l'entreprise.</p>
+            <div class="tech-box">
+                <span class="comment"># Création des groupes par département</span><br>
+                <span class="command">groupadd</span> dev && <span class="command">groupadd</span> marketing<br><br>
+                <span class="comment"># Ajout des collaborateurs (Alice, Bob, Claire...)</span><br>
+                <span class="command">useradd -g</span> dev alice<br>
+                <span class="command">useradd -g</span> marketing claire
+            </div>
+            <ul>
+                <li><strong>Gestion Identity :</strong> Affectation systématique de chaque utilisateur à un groupe principal métier.</li>
+                <li><strong>Sécurisation initiale :</strong> Attribution de mots de passe individuels et vérification des identités via <code>id</code>.</li>
+            </ul>
+        </section>
+
+        <section class="report-card">
+            <h2>Segmentation de l'Arborescence</h2>
+            <p>Mise en place de répertoires dédiés pour isoler les données sensibles de chaque service.</p>
+            <div class="tech-box">
+                <span class="comment"># Isolation des dossiers départements</span><br>
+                <span class="command">chown</span> :dev /home/dev && <span class="command">chmod</span> 770 /home/dev<br>
+                <span class="command">chown</span> :marketing /home/marketing && <span class="command">chmod</span> 770 /home/marketing
+            </div>
+            <ul>
+                <li><strong>Confidentialité :</strong> Configuration des droits pour que seuls les membres d'une équipe puissent accéder à leur dossier respectif.</li>
+                <li><strong>Contrôle d'accès :</strong> Suppression totale des droits pour les "autres" (others) sur les répertoires critiques.</li>
+            </ul>
+        </section>
+
+        <section class="report-card">
+            <h2>Espaces de Collaboration Avancés</h2>
+            <p>Configuration de zones de partage inter-groupes avec mécanismes d'héritage de droits.</p>
+            <div class="tech-box">
+                <span class="comment"># Espace projet partagé entre DEV et MARKETING</span><br>
+                <span class="command">chmod 2770</span> /home/projets<br><br>
+                <span class="comment"># Protection contre la suppression accidentelle (Sticky Bit)</span><br>
+                <span class="command">chmod +t</span> /home/support
+            </div>
+            <ul>
+                <li><strong>SetGID :</strong> Application sur <code>/home/projets</code> pour forcer l'héritage du groupe propriétaire sur tous les nouveaux fichiers créés.</li>
+                <li><strong>Sticky Bit :</strong> Sécurisation du dossier Support pour que seul le propriétaire d'un ticket puisse le supprimer.</li>
+            </ul>
+        </section>
+
+        <section class="report-card">
+            <h2>Audit et Validation des Restrictions</h2>
+            <p>Vérification du respect de la politique de sécurité à travers des scénarios de tests réels.</p>
+            <ul>
+                <li><strong>Impersonnalisation :</strong> Utilisation de <code>su - [utilisateur]</code> pour tester les limites de lecture/écriture de chaque profil.</li>
+                <li><strong>Vérification Direction :</strong> Configuration spécifique pour que la Direction puisse auditer (lire) tous les dossiers sans pouvoir les modifier par erreur.</li>
+                <li><strong>Traçabilité :</strong> Utilisation de <code>ls -lR</code> pour valider l'intégralité de la structure des permissions appliquées.</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 — Evgheni — Administration & Sécurité</p>
+    </footer>
+</body>
+</html>
