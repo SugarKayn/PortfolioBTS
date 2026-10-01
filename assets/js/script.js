@@ -104,7 +104,9 @@ document.addEventListener('DOMContentLoaded', () => {
             orbitFocus.classList.add('is-visible');
         });
     });
-    document.querySelector('.orbit-focus-close')?.addEventListener('click', resetPlanetFocus);
+    document.addEventListener('click', event => {
+        if (heroVisual?.classList.contains('is-focused') && !event.target.closest('.orbit-planet')) resetPlanetFocus();
+    });
 
     const dialog = document.getElementById('detail-dialog');
     const dialogTitle = document.getElementById('dialog-title');
