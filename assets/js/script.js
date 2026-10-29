@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuToggle = document.querySelector('.menu-toggle');
     const navLinks = document.querySelector('.nav-links');
     const navItems = [...document.querySelectorAll('.nav-links a')];
+    const e5Section = document.getElementById('e5');
+    const e6Section = document.getElementById('e6');
+    const contactSection = document.getElementById('contact');
     const closeMenu = () => {
         navLinks?.classList.remove('is-open');
         menuToggle?.setAttribute('aria-expanded', 'false');
@@ -31,7 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateNavigation = () => {
         nav?.classList.toggle('is-scrolled', window.scrollY > 20);
         const current = navSections.findLast(section => window.scrollY >= section.offsetTop - 160);
-        navItems.forEach(link => link.classList.toggle('is-active', link.getAttribute('href') === `#${current?.id}`));
+        const isInWorkArea = e5Section && e6Section && contactSection
+            && window.scrollY >= e5Section.offsetTop - 160
+            && window.scrollY < contactSection.offsetTop - 160;
+        navItems.forEach(link => {
+            const href = link.getAttribute('href');
+            const isWorkLink = href === '#e5' || href === '#e6';
+            link.classList.toggle('is-active', isWorkLink ? isInWorkArea : href === `#${current?.id}`);
+        });
     };
     window.addEventListener('scroll', updateNavigation, { passive: true });
     updateNavigation();
@@ -111,9 +121,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const dialog = document.getElementById('detail-dialog');
     const dialogTitle = document.getElementById('dialog-title');
     const dialogDetail = document.getElementById('dialog-detail');
+    const dialogCaseStudy = document.getElementById('dialog-case-study');
+    const dialogSimple = document.getElementById('dialog-simple');
+    const dialogTechnical = document.getElementById('dialog-technical');
+    const dialogGithub = document.getElementById('dialog-github');
+    const asteriaCaseStudy = {
+        title: 'Asteria Solutions — infrastructure hybride',
+        simple: 'Asteria Solutions est un environnement d’entraînement qui reproduit l’informatique d’une petite entreprise. Il permet de créer des comptes, partager des fichiers et donner un accès sécurisé à un collaborateur à distance. L’objectif est de comprendre comment ces services fonctionnent ensemble, puis de les faire évoluer progressivement vers le cloud.',
+        technical: 'Le homelab utilise VMware Workstation Pro et deux réseaux isolés : le réseau de l’entreprise (VMnet8 · 192.168.50.0/24) et un réseau représentant un collaborateur distant (VMnet10 · 192.168.100.0/24). DC01 assure Active Directory et DNS ; FS01 fournit les partages SMB ; VPN01, sous Ubuntu, expose un tunnel WireGuard ; PC01 est un poste Windows 11 joint au domaine. L’accès d’administration à distance a été validé avec RSAT, le routage et les règles de pare-feu nécessaires. La prochaine phase prévoit les fondations Azure : réseau, RBAC, supervision, sauvegarde et connectivité hybride.',
+        github: 'https://github.com/SugarKayn'
+    };
     const openDetail = (title, detail, icon) => {
+        const isAsteria = title === asteriaCaseStudy.title;
         dialogTitle.textContent = title;
-        dialogDetail.textContent = detail;
+        dialogDetail.hidden = isAsteria;
+        dialogCaseStudy.hidden = !isAsteria;
+        dialogGithub.hidden = !isAsteria;
+        if (isAsteria) {
+            dialogSimple.textContent = asteriaCaseStudy.simple;
+            dialogTechnical.textContent = asteriaCaseStudy.technical;
+            dialogGithub.href = asteriaCaseStudy.github;
+        } else {
+            dialogDetail.textContent = detail;
+        }
         document.querySelector('.dialog-icon').innerHTML = `<i data-lucide="${icon || 'sparkles'}"></i>`;
         if (typeof lucide !== 'undefined') lucide.createIcons();
         dialog.showModal();
