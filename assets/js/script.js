@@ -122,27 +122,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const dialogTitle = document.getElementById('dialog-title');
     const dialogDetail = document.getElementById('dialog-detail');
     const dialogCaseStudy = document.getElementById('dialog-case-study');
+    const dialogSkillNotes = document.getElementById('dialog-skill-notes');
     const dialogSimple = document.getElementById('dialog-simple');
     const dialogTechnical = document.getElementById('dialog-technical');
-    const dialogGithub = document.getElementById('dialog-github');
     const asteriaCaseStudy = {
         title: 'Asteria Solutions — infrastructure hybride',
         simple: 'Asteria Solutions est un environnement d’entraînement qui reproduit l’informatique d’une petite entreprise. Il permet de créer des comptes, partager des fichiers et donner un accès sécurisé à un collaborateur à distance. L’objectif est de comprendre comment ces services fonctionnent ensemble, puis de les faire évoluer progressivement vers le cloud.',
         technical: 'Le homelab utilise VMware Workstation Pro et deux réseaux isolés : le réseau de l’entreprise (VMnet8 · 192.168.50.0/24) et un réseau représentant un collaborateur distant (VMnet10 · 192.168.100.0/24). DC01 assure Active Directory et DNS ; FS01 fournit les partages SMB ; VPN01, sous Ubuntu, expose un tunnel WireGuard ; PC01 est un poste Windows 11 joint au domaine. L’accès d’administration à distance a été validé avec RSAT, le routage et les règles de pare-feu nécessaires. La prochaine phase prévoit les fondations Azure : réseau, RBAC, supervision, sauvegarde et connectivité hybride.',
         github: 'https://github.com/SugarKayn'
     };
+    const skillNotes = {
+        'Déployer des services': ['Installer et paramétrer les services nécessaires à une organisation.', 'Relier les services entre eux : annuaire, résolution de noms et partage de ressources.', 'Vérifier que le service reste disponible et documenter sa mise en place.'],
+        'Configurer les réseaux': ['Construire un plan d’adressage cohérent et identifier les équipements.', 'Faire circuler les communications grâce au routage, aux VLAN et aux services réseau.', 'Tester les flux et diagnostiquer une panne avec des outils de simulation ou de commande.'],
+        'Sécuriser l’infrastructure': ['Appliquer le principe du moindre privilège : chacun accède uniquement à ce qui lui est utile.', 'Utiliser les règles de pare-feu, la segmentation et des accès distants protégés.', 'Prendre en compte la sécurité dès la conception, pas seulement après un incident.'],
+        'Gérer les utilisateurs': ['Créer et organiser les comptes, groupes et droits dans Active Directory.', 'Utiliser les groupes et les GPO pour garder une configuration homogène.', 'Faire le lien entre les besoins d’un utilisateur et les ressources auxquelles il doit accéder.'],
+        'Automatiser et administrer': ['Utiliser PowerShell pour fiabiliser les actions répétitives.', 'Conserver des configurations plus cohérentes grâce aux scripts.', 'Développer progressivement une approche d’administration plus efficace et traçable.'],
+        'Accompagner les utilisateurs': ['Qualifier une demande, suivre son traitement et expliquer la solution.', 'Utiliser GLPI pour centraliser les incidents et l’inventaire.', 'Produire une documentation simple afin de faciliter l’autonomie et le dépannage.'],
+        'Approfondir le cloud': ['Découvrir Microsoft Azure comme prolongement des environnements systèmes et réseaux.', 'Approfondir les machines virtuelles, les réseaux, le stockage, la sauvegarde et l’identité.', 'Construire progressivement les repères nécessaires à une infrastructure hybride.'],
+        'Surveiller et optimiser': ['Comprendre l’intérêt des journaux, alertes et indicateurs de disponibilité.', 'Repérer les performances ou les coûts qui demandent une attention particulière.', 'Utiliser ces informations pour faire évoluer un service plutôt que réagir trop tard.'],
+        'Planifier et documenter': ['Présenter une architecture au moyen de schémas simples et lisibles.', 'Conserver les procédures, choix techniques et résultats de test.', 'Faciliter la reprise, le dépannage et l’évolution d’un environnement.']
+    };
     const openDetail = (title, detail, icon) => {
         const isAsteria = title === asteriaCaseStudy.title;
+        const notes = skillNotes[title];
         dialogTitle.textContent = title;
         dialogDetail.hidden = isAsteria;
         dialogCaseStudy.hidden = !isAsteria;
-        dialogGithub.hidden = !isAsteria;
+        dialogSkillNotes.hidden = isAsteria || !notes;
         if (isAsteria) {
             dialogSimple.textContent = asteriaCaseStudy.simple;
             dialogTechnical.textContent = asteriaCaseStudy.technical;
-            dialogGithub.href = asteriaCaseStudy.github;
         } else {
-            dialogDetail.textContent = detail;
+            dialogDetail.textContent = detail || 'Cette compétence est en cours de développement dans mon parcours.';
+            if (notes) {
+                dialogSkillNotes.innerHTML = `<p>En pratique</p><ul>${notes.map(note => `<li>${note}</li>`).join('')}</ul>`;
+            }
         }
         document.querySelector('.dialog-icon').innerHTML = `<i data-lucide="${icon || 'sparkles'}"></i>`;
         if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -153,7 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const closeDialog = () => dialog?.close();
     document.querySelector('.dialog-close')?.addEventListener('click', closeDialog);
-    document.querySelector('.dialog-done')?.addEventListener('click', closeDialog);
     dialog?.addEventListener('click', event => { if (event.target === dialog) closeDialog(); });
 
     const track = document.querySelector('.carousel-track');
